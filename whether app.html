@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 { color: #333; margin-bottom: 20px; }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      padding: 10px;
+      width: 250px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover { background-color: #555; }
+
+    .weather-card {
+      margin-top: 25px;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 280px;
+      display: none;
+      transition: 0.3s;
+    }
+
+    .temp {
+      font-size: 30px;
+      font-weight: bold;
+      color: #ff6600;
+    }
+
+    .condition { text-transform: capitalize; color: #555; }
+  </style>
+</head>
+
+<body>
+
+  <h1>🌦️ How  my city feels </h1>
+
+  <div class="search-box">
+    <input type="text" id="cityInput" placeholder="Enter city name..." />
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div class="weather-card" id="weatherCard">
+    <h2 id="cityName"></h2>
+    <p class="temp" id="temperature"></p>
+    <p class="condition" id="condition"></p>
+  </div>
+
+  <script>
+    const apiKey = "7ae66a98f74018f4975ec5400a51cd42";  // 
+
+    // Default location (Your OpenWeatherMap URL location)
+    const defaultLat = 24.65;
+    const defaultLon = 77.3167;
+
+    document.getElementById("searchBtn").addEventListener("click", getWeather);
+    document.getElementById("cityInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") getWeather();
+    });
+
+    async function getWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      let url = "";
+
+      if (city === "") {
+       
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${defaultLat}&lon=${defaultLon}&appid=${apiKey}&units=metric`;
+      } else {
+       
+        url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+      }
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod != 200) {
+          alert("City not found or API error!");
+          document.getElementById("weatherCard").style.display = "none";
+          return;
+        }
+
+        document.getElementById("cityName").textContent =
+          `${data.name}, ${data.sys.country}`;
+
+        document.getElementById("temperature").textContent =
+          `${data.main.temp} °C`;
+
+        document.getElementById("condition").textContent =
+          data.weather[0].description;
+
+        document.getElementById("weatherCard").style.display = "block";
+
+      } catch (error) {
+        alert("Error fetching data. Check your API key or internet.");
+      }
+    }
+
+    // Load weather automatically for default location on page load
+    window.onload = getWeather;
+
+  </script>
+</body>
+</html>
